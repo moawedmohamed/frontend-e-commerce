@@ -3,7 +3,7 @@ import axios from 'axios'
 import type { ProductStore } from '../types';
 import toast from 'react-hot-toast';
 import type { FormEvent } from 'react';
-const BASE_URL: string = 'http://localhost:3000'
+const BASE_URL:string = "https://backend-e-commerce-eight.vercel.app";
 export const useProductStore = create<ProductStore>((set, get) => ({
     //product state
     products: [],
