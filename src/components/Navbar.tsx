@@ -4,7 +4,7 @@ import ThemeSelector from "../components/ThemSelector";
 import { useProductStore } from "../store/useProductStore";
 
 function Navbar() {
-  const { pathname } = useResolvedPath();
+  const { pathname } = useResolvedPath("/");
   const isHomePage = pathname === "/";
 
   const { products } = useProductStore();

@@ -68,25 +68,54 @@ export const useProductStore = create<ProductStore>((set, get) => ({
 
         }
     },
+    // in useProductStore (replace fetchProduct)
     fetchProduct: async (id: number) => {
-        set({ loading: true })
-        try {
-            const res = await axios.get(`${BASE_URL}/api/products/${id}`)
-            set({ currentProduct: res.data.data, formData: res.data.data });
-        } catch (error) {
-            console.log('Error is FetchProduct functions', error);
-            set({ error: "Something wen wrong", currentProduct: null })
-        } finally {
-            set({ loading: false })
+        if (!id || Number.isNaN(Number(id))) {
+            // invalid id, ensure we don't change state to broken values
+            set({ currentProduct: null });
+            return;
+        }
 
+        set({ loading: true });
+        try {
+            const res = await axios.get(`${BASE_URL}/api/products/${id}`);
+            const p = res?.data?.message;
+            if (!p) {
+                set({
+                    error: "Product not found",
+                    currentProduct: null,
+                    formData: { name: "", price: "", image: "" },
+                });
+                return;
+            }
+            set({
+                currentProduct: p,
+                formData: {
+                    name: p.name ?? "",
+                    price: p.price ?? "",
+                    image: p.image ?? "",
+                },
+                error: null,
+            });
+        } catch (error: any) {
+            console.log("fetchProduct error:", error?.response ?? error);
+            set({
+                error: error?.response?.data?.message ?? "Something went wrong",
+                currentProduct: null,
+                // keep formData safe
+                formData: { name: "", price: "", image: "" },
+            });
+        } finally {
+            set({ loading: false });
         }
     },
+
     updateProduct: async (id: number) => {
         set({ loading: true })
         try {
             const { formData } = get()
-            const res = await axios.put(`${BASE_URL}/api/products/${id}`)
-            set({ currentProduct: res.data.data });
+            const res = await axios.put(`${BASE_URL}/api/products/${id}`, formData)
+            set({ currentProduct: res.data.message });
             toast.success('Product updated successfully')
         } catch (error) {
             toast.error('Something went wrong')
